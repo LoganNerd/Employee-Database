@@ -2,63 +2,46 @@ const generateTable = require('./utils/generateTable')
 const inquirer = require('inquirer');
 const fs = require('fs');
 
-inquirer.prompt([
-    {
-        type: "input",
-        message: "Employee Name:",
-        name: "employee"
-    },
-    {
-        type: "list",
-        message: "What role are they?",
-        name: "role",
-        choices: ["Employee", "Manager", "Engineer", "Intern"]
+const employeeData = [];
 
-    },
-    {
-        type: "input",
-        message: "Employee Name:",
-        name: "employee2"
-    },
-    {
-        type: "list",
-        message: "What role are they?",
-        name: "role2",
-        choices: ["Employee", "Manager", "Engineer", "Intern"]
+function addEmployee() {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Employee Name:",
+            name: "name"
+        },
+        {
+            type: "list",
+            message: "What role are they?",
+            name: "role",
+            choices: ["Employee", "Manager", "Engineer", "Intern"]
+        },
+        {
+            type: "confirm",
+            message: "Do you want to add another employee?",
+            name: "addAnother"
+        }
+    ]) 
+    .then((answers) => {
+        employeeData.push({
+            name: answers.name,
+            role: answers.role
+        });
 
-    },
-    {
-        type: "input",
-        message: "Employee Name:",
-        name: "employee3"
-    },
-    {
-        type: "list",
-        message: "What role are they?",
-        name: "role3",
-        choices: ["Employee", "Manager", "Engineer", "Intern"]
+        if (answers.addAnother) {
+            addEmployee();
+        } else {
+            const makeTable = generateTable(employeeData);
+            fs.writeFile("./utils/product.html", makeTable , (err) => {
+                if (err) {
+                    console.error(err);
+                } else {
+                    console.log("Success!");
+                }
+            });
+        }
+    });
+}
 
-    },
-    {
-        type: "input",
-        message: "Employee Name:",
-        name: "employee4"
-    },
-    {
-        type: "list",
-        message: "What role are they?",
-        name: "role4",
-        choices: ["Employee", "Manager", "Engineer", "Intern"]
-
-    }
-
-    
-]) 
-
-    .then((anwsers) => {
-    const makeTable = generateTable(anwsers)
-    fs.writeFile("./utils/product.html", makeTable , (err) => 
-        err ? console.error(err) : console.log("Success!")
-    );
-
-});
+addEmployee();
